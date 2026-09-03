@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+from typing import Hashable, Any
 
 
 @dataclass
 class Node:
-    key: str | int
+    key: Hashable
     hashed: int
-    value: str | int
+    value: Any
 
 
 class Dictionary:
@@ -32,7 +33,7 @@ class Dictionary:
 
                 self.hash_table[index] = item
 
-    def __setitem__(self, key: int | str, value: int | str) -> None:
+    def __setitem__(self, key: Hashable, value: Any) -> None:
 
         if self.counter > (len(self.hash_table) * 2 / 3):
             self._resize()
@@ -56,9 +57,14 @@ class Dictionary:
                   and self.hash_table[index].key != key):
                 index = (index + 1) % len(self.hash_table)
 
-    def __getitem__(self, key: int | str) -> int | str:
-        for item in self.hash_table:
-            if item is not None and item.key == key:
-                return item.value
-        else:
-            raise KeyError
+    def __getitem__(self, key: Hashable) -> Any:
+        index = hash(key) % len(self.hash_table)
+        while True:
+
+            if self.hash_table[index] is None:
+                raise KeyError(f"Key '{key}' not found")
+
+            elif self.hash_table[index].key == key:
+                return self.hash_table[index].value
+
+            index = (index + 1) % len(self.hash_table)
